@@ -4,7 +4,6 @@ import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -36,12 +35,12 @@ public class Snapshot {
    /**
     * List of SensorData at the time of the Snapshot
     */
-   private ArrayList<SensorData> data;
+   private List<SensorData> data;
 
    /**
     * List of Existing conditions at the time of the Snapshot
     */
-   private ArrayList<String> conditions;
+   private List<String> conditions;
 
    /**
     * EMA at the time of the Snapshot
@@ -56,7 +55,7 @@ public class Snapshot {
     * @param context The context to be used to fetch the location. Generally, this is just the
     *                invoking Activity.
     */
-   public Snapshot(ArrayList<SensorData> data, ArrayList<String> conditions,
+   public Snapshot(List<SensorData> data, List<String> conditions,
          EcologicalMomentaryAssessment ema, Context context) {
       this.userId = Profile.getProfile().getId();
       this.data = data;
@@ -67,7 +66,12 @@ public class Snapshot {
          LocationManager manager =
                (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
          List<String> providers = manager.getAllProviders();
-         location = manager.getLastKnownLocation(providers.get(0));
+         try {
+            location = manager.getLastKnownLocation("gps");
+         }
+         catch(SecurityException | IllegalArgumentException e) {
+            location = manager.getLastKnownLocation(providers.get(0));
+         }
          timestamp = new Date(location.getTime());
       }
       catch(NullPointerException | IndexOutOfBoundsException | SecurityException |
@@ -80,8 +84,8 @@ public class Snapshot {
    /**
     * Constructor to be used by DBAccess to build Snapshot from database.
     */
-    public Snapshot(long userId, Date timestamp, Location location, ArrayList<SensorData> data,
-         ArrayList<String> conditions, EcologicalMomentaryAssessment ema) {
+    public Snapshot(long userId, Date timestamp, Location location, List<SensorData> data,
+         List<String> conditions, EcologicalMomentaryAssessment ema) {
       this.userId = userId;
       this.timestamp = timestamp;
       this.location = location;
@@ -111,7 +115,7 @@ public class Snapshot {
     * Returns the existing conditions at the time of the Snapshot.
     * @return Existing conditions
     */
-   public ArrayList<String> getConditions() {
+   public List<String> getConditions() {
       return conditions;
    }
 
@@ -119,7 +123,7 @@ public class Snapshot {
     * Returns sensor data at the time of this Snapshot
     * @return Sensor data
     */
-   public ArrayList<SensorData> getData() {
+   public List<SensorData> getData() {
       return data;
    }
 
