@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteFullException;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import jimjams.airmonitor.database.DBAccess;
 
@@ -26,7 +27,7 @@ public class Profile {
    /**
     * Existing conditions
     */
-   private ArrayList<String> conditions;
+   private List<String> conditions;
 
    /**
     * Current instance of Profile
@@ -110,7 +111,7 @@ public class Profile {
     * Returns the List of existing conditions.
     * @return List of existing conditions
     */
-   public ArrayList<String> getConditions() {
+   public List<String> getConditions() {
       return conditions;
    }
 
