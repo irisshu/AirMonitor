@@ -1,7 +1,6 @@
 package jimjams.airmonitor.sensordata;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Generates random sensor sensor data to test app. This class uses the singleton pattern and a
@@ -54,16 +53,30 @@ public class SensorDataGenerator {
     * is no data are not returned.
     * @return Sensor data
     */
-   public List<SensorData> getData() {
-      List<SensorData> data = new ArrayList<>();
-      for(DataCategory dataCat: dataCats) {
-         if(rand(0, 1) < RETURN_CHANCE) {
-            data.add(new SensorData(dataCat.displayName, dataCat.shortName,
-                  rand(dataCat.min, dataCat.max), dataCat.decimalPlaces,
-                  dataCat.unit));
-         }
-      }
-      return data;
+   public ArrayList<SensorData> getData(String sensorData) {
+      ArrayList<SensorData> data = new ArrayList<>();
+       // PARSE string with ';' as the delimiter between different sensors (set on Arduino code) JPM
+       String[] tokens = sensorData.split(";");
+
+       // ATTEMPT to get sound level
+       // NOT WORKING! JPM
+       /*
+       sMeter.start();
+       data.add(new SensorData("Sound Level", "Sound Level", sMeter.getAmplitude(), "DB"));
+       sMeter.stop();
+       */
+
+       //for(DataCategory dataCat: dataCats) {
+       for(String value: tokens){
+           //FURTHER parse tokens in to bits using ':' delimiter breaking single sensor
+           // data in to name, value and units (array 0, 1 and 2 respectiviy [set in Arduino code])
+           String[] bits = value.split(":");
+           // ADD data to List by INSTANTIATING SensorData object
+           data.add(new SensorData(bits[0], bits[0],Double.parseDouble(bits[1]), 0,bits[2]));
+       }
+       // RETURN ArrayList containing sensor data
+       return data;
+
    }
 
    /**
