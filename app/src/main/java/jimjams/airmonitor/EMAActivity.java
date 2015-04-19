@@ -15,9 +15,9 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 import jimjams.airmonitor.database.DBAccess;
 import jimjams.airmonitor.datastructure.EcologicalMomentaryAssessment;
@@ -113,7 +113,7 @@ public class EMAActivity extends ActionBarActivity {
 
          // Update companions field
          EditText companionsField = (EditText)findViewById(R.id.ema_screen_who_input);
-         ArrayList<String> companions = ema.getCompanions();
+         List<String> companions = ema.getCompanions();
          String companionsString = "";
          for(int i = 0; i < companions.size(); i++) {
             if(i > 0) {
@@ -158,7 +158,7 @@ public class EMAActivity extends ActionBarActivity {
       Snapshot latest = null;
 
       // Get all Snapshots
-      ArrayList<Snapshot> snapshots = access.getSnapshots(profile.getId());
+      List<Snapshot> snapshots = access.getSnapshots(profile.getId());
 
       // Sort Snapshots
       if(snapshots.size() > 0) {
@@ -187,14 +187,11 @@ public class EMAActivity extends ActionBarActivity {
    public void on_EMA_Screen_save_button_click(View saveBtn) {
 
       // Current set of sensor data
-       // ADDED null string to get this working
-       // JPM
-       // temp fix; needs to be switched
-      ArrayList<SensorData> data = SensorDataGenerator.getInstance().getData("");
+      List<SensorData> data = SensorDataGenerator.getInstance().getData();
 
       // Current set of existing conditions, taken from the Profile (note that the Profile is
       // updated every time a condition is added or deleted)
-      ArrayList<String> conditions = profile.getConditions();
+      List<String> conditions = profile.getConditions();
 
       // Current EMA, taken from the EMA screen
       EcologicalMomentaryAssessment ema = getEma();
@@ -237,12 +234,7 @@ public class EMAActivity extends ActionBarActivity {
       for(int i = 0; i < comps.length; i++) {
          comps[i] = normalize(comps[i]);
       }
-      // Populate manually to ensure you have an ArrayList, as not all List implementations support
-      // the remove(E) method
-      ArrayList<String> companions = new ArrayList<>(comps.length);
-      for(String companion: comps) {
-         companions.add(companion);
-      }
+      List<String> companions = Arrays.asList(comps);
 
       // Get air quality
       SeekBar aqBar = (SeekBar)findViewById(R.id.ema_screen_aq_awareness_input);
