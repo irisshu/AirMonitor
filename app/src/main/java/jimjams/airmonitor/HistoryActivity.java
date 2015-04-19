@@ -17,6 +17,7 @@ import android.widget.TextView;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import jimjams.airmonitor.database.AMDBContract;
 import jimjams.airmonitor.database.DBAccess;
@@ -121,11 +122,10 @@ public class HistoryActivity extends ActionBarActivity {
       TextView userIdRow = new TextView(this);
       userIdRow.setText("User ID: " + userId);
       userIdRow.setTextSize(FONT_UNIT, LABEL_FONT_SIZE);
-      //userIdRow.setTextColor();
       layout.addView(userIdRow);
 
       // Add a row for each Snapshot
-      ArrayList<Snapshot> snapshots = DBAccess.getDBAccess().getSnapshots(userId);
+      List<Snapshot> snapshots = DBAccess.getDBAccess().getSnapshots(userId);
       Log.d(className, snapshots.size() + " Snapshots loaded.");
       for(Snapshot snap: snapshots) {
          Log.d(className, snap.toString());
@@ -178,7 +178,7 @@ public class HistoryActivity extends ActionBarActivity {
             locationLayout.setTag(new ArrayList<View>());
 
             // Add this layout to the parent's tag
-            ((ArrayList<View>)individualSnapshotLayout.getTag()).add(locationLayout);
+            ((List<View>)individualSnapshotLayout.getTag()).add(locationLayout);
 
             // Label for the location data
             locationLabel = new TextView(this);
@@ -196,7 +196,7 @@ public class HistoryActivity extends ActionBarActivity {
                   locationTable.getPaddingBottom());
 
             // Add this layout to the parent's tag
-            ((ArrayList<View>)locationLayout.getTag()).add(locationTable);
+            ((List<View>)locationLayout.getTag()).add(locationTable);
 
             // Populate the table
             Log.d(className, "Adding lat=" + location.getLatitude() + " long=" + location.getLongitude());
@@ -219,7 +219,7 @@ public class HistoryActivity extends ActionBarActivity {
          sensorLayout.setTag(new ArrayList<View>());
 
          // Add this layout to the parent's tag
-         ((ArrayList<View>)individualSnapshotLayout.getTag()).add(sensorLayout);
+         ((List<View>)individualSnapshotLayout.getTag()).add(sensorLayout);
 
          // Label for the sensor data
          TextView sensorLabel = new TextView(this);
@@ -236,10 +236,10 @@ public class HistoryActivity extends ActionBarActivity {
                sensorTable.getPaddingRight(), sensorTable.getPaddingBottom());
 
          // Add this layout to the parent's tag
-         ((ArrayList<View>)sensorLayout.getTag()).add(sensorTable);
+         ((List<View>)sensorLayout.getTag()).add(sensorTable);
 
          // Get the sensor data
-         ArrayList<SensorData> sensorData = snapshot.getData();
+         List<SensorData> sensorData = snapshot.getData();
 
          // Populate the table
          if(sensorData.size() == 0) {
@@ -271,7 +271,7 @@ public class HistoryActivity extends ActionBarActivity {
          emaLayout.setTag(new ArrayList<View>());
 
          // Add this layout to the parent's tag
-         ((ArrayList<View>)individualSnapshotLayout.getTag()).add(emaLayout);
+         ((List<View>)individualSnapshotLayout.getTag()).add(emaLayout);
 
          // Label for the EMA
          TextView emaLabel = new TextView(this);
@@ -288,7 +288,7 @@ public class HistoryActivity extends ActionBarActivity {
                emaTable.getPaddingRight(), emaTable.getPaddingBottom());
 
          // Add this layout to the parent's tag
-         ((ArrayList<View>)emaLayout.getTag()).add(emaTable);
+         ((List<View>)emaLayout.getTag()).add(emaTable);
 
          // Get the ema data
          EcologicalMomentaryAssessment ema = snapshot.getEma();
@@ -300,7 +300,7 @@ public class HistoryActivity extends ActionBarActivity {
                ema.getReportedLocation()));
          emaTable.addView(makeTableRow(getResources().getString(R.string.history_screen_ema_activity_label),
                ema.getActivity()));
-         ArrayList<String> companions = ema.getCompanions();
+         List<String> companions = ema.getCompanions();
          String companionString = "";
          for(int i = 0; i < companions.size(); i++) {
             if(i > 0) {
@@ -336,7 +336,7 @@ public class HistoryActivity extends ActionBarActivity {
          conditionLayout.setTag(new ArrayList<View>());
 
          // Add this layout to the parent's tag
-         ((ArrayList<View>)individualSnapshotLayout.getTag()).add(conditionLayout);
+         ((List<View>)individualSnapshotLayout.getTag()).add(conditionLayout);
 
          // Label for the existing conditions
          TextView conditionLabel = new TextView(this);
@@ -355,10 +355,10 @@ public class HistoryActivity extends ActionBarActivity {
                conditionTable.getPaddingBottom());
 
          // Add this layout to the parent's tag
-         ((ArrayList<View>)conditionLayout.getTag()).add(conditionTable);
+         ((List<View>)conditionLayout.getTag()).add(conditionTable);
 
          // Get the existing conditions data
-         ArrayList<String> conditions = snapshot.getConditions();
+         List<String> conditions = snapshot.getConditions();
 
           // Populate the layout
          if(conditions.size()  == 0) {
@@ -378,31 +378,7 @@ public class HistoryActivity extends ActionBarActivity {
          }
 
          // Set up listener for table expansion
-         // Listener that expands or collapses categories in the history screen
-         View.OnClickListener listener = new View.OnClickListener() {
-            /**
-             * Expands or collapses categories in the history screen.
-             * @param v The View that was clicked
-             */
-            public void onClick(View v) {
-               Boolean tag = (Boolean) v.getTag();
-               LinearLayout parent = (LinearLayout) v.getParent();
-               ArrayList<View> kids = (ArrayList<View>) parent.getTag();
-               if (tag) {
-                  // Snapshot is expanded; must be collapsed
-                  for (View kid : kids) {
-                     parent.removeView(kid);
-                  }
-               } else {
-                  // Snapshot is collapsed; must be expanded
-                  for (View kid : kids) {
-                     parent.addView(kid);
-                  }
-               }
-               // Toggle the boolean tag
-               v.setTag(!tag);
-            }
-         };
+         ExpansionListener listener = new ExpansionListener();
 
          individualSnapshotLabel.setOnClickListener(listener);
          if(locationLabel != null) {
@@ -438,5 +414,35 @@ public class HistoryActivity extends ActionBarActivity {
       tr.addView(c1);
       tr.addView(c2);
       return tr;
+   }
+
+   /**
+    * Listener that expands or collapses categories in the history screen
+    */
+   private class ExpansionListener implements View.OnClickListener {
+
+      /**
+       * Expands or collapses categories in the history screen.
+       * @param v The View that was clicked
+       */
+      public void onClick(View v) {
+         Boolean tag = (Boolean)v.getTag();
+         LinearLayout parent = (LinearLayout)v.getParent();
+         List<View> kids = (List<View>)parent.getTag();
+         if(tag) {
+            // Snapshot is expanded; must be collapsed
+            for(View kid: kids) {
+               parent.removeView(kid);
+            }
+         }
+         else {
+            // Snapshot is collapsed; must be expanded
+            for(View kid: kids) {
+               parent.addView(kid);
+            }
+         }
+         // Toggle the boolean tag
+         v.setTag(!tag);
+      }
    }
 }
