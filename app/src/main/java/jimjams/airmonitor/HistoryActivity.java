@@ -36,12 +36,12 @@ public class HistoryActivity extends ActionBarActivity {
    /**
     * Font size for clickable labels
     */
-   final private static float LABEL_FONT_SIZE = 20;
+   final private static float LABEL_FONT_SIZE = 23;
 
    /**
     * Font size for data tables
     */
-   final private static float TABLE_FONT_SIZE = 14;
+   final private static float TABLE_FONT_SIZE = 18;
 
    /**
     * Value used to indent a subcategory under its parent
